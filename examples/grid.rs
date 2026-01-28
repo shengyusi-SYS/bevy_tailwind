@@ -24,67 +24,67 @@ fn spawn_layout(mut commands: Commands) {
     // Top-level grid (app frame)
     commands
         .spawn(
-            tw!("grid size-full grid-cols-[min-content_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_20px] bg-white"),
-        )
-        .with_children(|builder| {
-            // Header
-            builder
-                .spawn(tw!("grid col-span-2 p-1.5"))
-                .with_children(|builder| {
-                    spawn_nested_text_bundle(builder,  "Bevy CSS Grid Layout Example");
-                });
+            tw!("grid size-full border-4 border-cyan-200 rounded-md grow grid-cols-[min-content_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_20px] bg-yellow-50"),
+        );
+    // .with_children(|builder| {
+    //     // Header
+    //     builder
+    //         .spawn(tw!("grid col-span-2 p-1.5"))
+    //         .with_children(|builder| {
+    //             spawn_nested_text_bundle(builder,  "Bevy CSS Grid Layout Example");
+    //         });
 
-            // Main content grid (auto placed in row 2, column 1)
-            builder
-                .spawn(
-                    tw!("h-full aspect-square grid p-6 grid-cols-4 grid-rows-4 gap-3", "bg": Color::srgb(0.25, 0.25, 0.25)
-                ))
-                .with_children(|builder| {
-                    // Note there is no need to specify the position for each grid item. Grid items that are
-                    // not given an explicit position will be automatically positioned into the next available
-                    // grid cell. The order in which this is performed can be controlled using the grid_auto_flow
-                    // style property.
+    //     // Main content grid (auto placed in row 2, column 1)
+    //     builder
+    //         .spawn(
+    //             tw!("h-full aspect-square grid p-6 grid-cols-4 grid-rows-4 gap-3", "bg": Color::srgb(0.25, 0.25, 0.25)
+    //         ))
+    //         .with_children(|builder| {
+    //             // Note there is no need to specify the position for each grid item. Grid items that are
+    //             // not given an explicit position will be automatically positioned into the next available
+    //             // grid cell. The order in which this is performed can be controlled using the grid_auto_flow
+    //             // style property.
 
-                    item_rect(builder, ORANGE);
-                    item_rect(builder, BISQUE);
-                    item_rect(builder, BLUE);
-                    item_rect(builder, CRIMSON);
-                    item_rect(builder, AQUA);
-                    item_rect(builder, ORANGE_RED);
-                    item_rect(builder, DARK_GREEN);
-                    item_rect(builder, FUCHSIA);
-                    item_rect(builder, TEAL);
-                    item_rect(builder, ALICE_BLUE);
-                    item_rect(builder, CRIMSON);
-                    item_rect(builder, ANTIQUE_WHITE);
-                    item_rect(builder, YELLOW);
-                    item_rect(builder, DEEP_PINK);
-                    item_rect(builder, YELLOW_GREEN);
-                    item_rect(builder, SALMON);
-                });
+    //             item_rect(builder, ORANGE);
+    //             item_rect(builder, BISQUE);
+    //             item_rect(builder, BLUE);
+    //             item_rect(builder, CRIMSON);
+    //             item_rect(builder, AQUA);
+    //             item_rect(builder, ORANGE_RED);
+    //             item_rect(builder, DARK_GREEN);
+    //             item_rect(builder, FUCHSIA);
+    //             item_rect(builder, TEAL);
+    //             item_rect(builder, ALICE_BLUE);
+    //             item_rect(builder, CRIMSON);
+    //             item_rect(builder, ANTIQUE_WHITE);
+    //             item_rect(builder, YELLOW);
+    //             item_rect(builder, DEEP_PINK);
+    //             item_rect(builder, YELLOW_GREEN);
+    //             item_rect(builder, SALMON);
+    //         });
 
-            // Right side bar (auto placed in row 2, column 2)
-            builder
-                .spawn(
-                    tw!("grid items-center justify-center p-2.5 gap-y-2.5 grid-rows-[auto_auto_1fr] bg-black"),
-                )
-                .with_children(|builder| {
-                    builder.spawn(Text::new("Sidebar"));
-                    builder.spawn((Text::new("A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely."),
-                       tw!("text-[13px]") 
-                    ));
-                    builder.spawn(Node::default());
-                });
+    //     // Right side bar (auto placed in row 2, column 2)
+    //     builder
+    //         .spawn(
+    //             tw!("grid items-center justify-center p-2.5 gap-y-2.5 grid-rows-[auto_auto_1fr] bg-black"),
+    //         )
+    //         .with_children(|builder| {
+    //             builder.spawn(Text::new("Sidebar"));
+    //             builder.spawn((Text::new("A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely. A paragraph of text which ought to wrap nicely."),
+    //                tw!("text-[13px]")
+    //             ));
+    //             builder.spawn(Node::default());
+    //         });
 
-            // Footer / status bar
-            builder.spawn(tw!("col-span-2 bg-white"));
+    //     // Footer / status bar
+    //     builder.spawn(tw!("col-span-2 bg-white"));
 
-            // Modal (absolutely positioned on top of content - currently hidden: to view it, change its visibility)
-            builder.spawn((
-                tw!("absolute mt-25 w-60/100 h-[300px] max-w-[600px] bg-white/80"),
-                Visibility::Hidden
-            ));
-        });
+    //     // Modal (absolutely positioned on top of content - currently hidden: to view it, change its visibility)
+    //     builder.spawn((
+    //         tw!("absolute mt-25 w-60/100 h-[300px] max-w-[600px] bg-white/80"),
+    //         Visibility::Hidden
+    //     ));
+    // });
 }
 
 /// Create a colored rectangle node. The node has size as it is assumed that it will be

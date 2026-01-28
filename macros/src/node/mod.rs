@@ -138,6 +138,7 @@ pub enum NodeProp {
     Margin,
     Padding,
     Border,
+    BorderRadius,
     FlexDirection,
     FlexWrap,
     FlexGrow,
@@ -182,6 +183,7 @@ impl AsRef<str> for NodeProp {
             NodeProp::Margin => "margin",
             NodeProp::Padding => "padding",
             NodeProp::Border => "border",
+            NodeProp::BorderRadius => "border_radius",
             NodeProp::FlexDirection => "flex_direction",
             NodeProp::FlexWrap => "flex_wrap",
             NodeProp::FlexGrow => "flex_grow",
@@ -319,3 +321,72 @@ macro_rules! insert_node_ui_rect_computed {
 }
 
 pub(crate) use insert_node_ui_rect_computed;
+
+macro_rules! insert_node_border_radius {
+    ($ctx:ident, $value:expr, $priority:literal, $props:expr) => {
+        crate::node::insert_node_prop_nested!(
+            $ctx,
+            crate::node::NodeProp::BorderRadius,
+            quote::quote! {bevy::ui::BorderRadius},
+            $value,
+            $priority,
+            $props
+        );
+    };
+}
+
+pub(crate) use insert_node_border_radius;
+
+macro_rules! insert_node_border_radius_computed {
+    ($ctx:ident, $picking_prop:ident, $priority:literal, $props:expr) => {
+        match &$ctx.class_type {
+            crate::ClassType::Computed(expr) => {
+                if $ctx.hover || $ctx.focus {
+                    $ctx.insert_picking_style(
+                        crate::picking::PickingStyleProp::$picking_prop,
+                        expr.clone(),
+                    );
+                } else {
+                    crate::node::insert_node_prop_nested!(
+                        $ctx,
+                        crate::node::NodeProp::BorderRadius,
+                        quote::quote! {bevy::ui::BorderRadius},
+                        expr.clone(),
+                        $priority,
+                        $props
+                    );
+                }
+                return Ok(true);
+            }
+            _ => {}
+        }
+    };
+
+    ($ctx:ident, [$($picking_prop:ident),*], $priority:literal, $props:expr) => {
+        match $ctx.class_type.clone() {
+            crate::ClassType::Computed(expr) => {
+                if $ctx.hover || $ctx.focus {
+                    $(
+                        $ctx.insert_picking_style(
+                            crate::picking::PickingStyleProp::$picking_prop,
+                            expr.clone(),
+                        );
+                    )*
+                } else {
+                    crate::node::insert_node_prop_nested!(
+                        $ctx,
+                        crate::node::NodeProp::BorderRadius,
+                        quote::quote! {bevy::ui::BorderRadius},
+                        expr.clone(),
+                        $priority,
+                        $props
+                    );
+                }
+                return Ok(true);
+            }
+            _ => {}
+        }
+    };
+}
+
+pub(crate) use insert_node_border_radius_computed;

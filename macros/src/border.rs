@@ -1,5 +1,6 @@
 use crate::{
     ParseClassError, ParseCtx, ParseResult,
+    node::{insert_node_border_radius, insert_node_border_radius_computed},
     picking::{deny_picking_style, insert_picking_style},
     utils::{color::Color, deny_computed_style, insert_computed_style, val::Val},
 };
@@ -8,68 +9,61 @@ impl ParseCtx {
     pub fn parse_border_radius(&mut self, class: &str) -> ParseResult {
         match class {
             "rounded" => {
-                insert_computed_style!(
+                insert_node_border_radius_computed!(
                     self,
-                    border_radius,
                     [
-                        (BorderRadiusTl, "top_left", 0),
-                        (BorderRadiusTr, "top_right", 0),
-                        (BorderRadiusBr, "bottom_right", 0),
-                        (BorderRadiusBl, "bottom_left", 0)
-                    ]
-                )
+                        BorderRadiusTl,
+                        BorderRadiusTr,
+                        BorderRadiusBr,
+                        BorderRadiusBl
+                    ],
+                    0,
+                    ["top_left", "top_right", "bottom_right", "bottom_left"]
+                );
             }
             "rounded-t" => {
-                insert_computed_style!(
+                insert_node_border_radius_computed!(
                     self,
-                    border_radius,
-                    [
-                        (BorderRadiusTl, "top_left", 1),
-                        (BorderRadiusTr, "top_right", 1)
-                    ]
-                )
+                    [BorderRadiusTl, BorderRadiusTr],
+                    1,
+                    ["top_left", "top_right"]
+                );
             }
             "rounded-r" => {
-                insert_computed_style!(
+                insert_node_border_radius_computed!(
                     self,
-                    border_radius,
-                    [
-                        (BorderRadiusTr, "top_right", 1),
-                        (BorderRadiusBr, "bottom_right", 1)
-                    ]
-                )
+                    [BorderRadiusTr, BorderRadiusBr],
+                    1,
+                    ["top_right", "bottom_right"]
+                );
             }
             "rounded-b" => {
-                insert_computed_style!(
+                insert_node_border_radius_computed!(
                     self,
-                    border_radius,
-                    [
-                        (BorderRadiusBr, "bottom_right", 1),
-                        (BorderRadiusBl, "bottom_left", 1)
-                    ]
-                )
+                    [BorderRadiusBr, BorderRadiusBl],
+                    1,
+                    ["bottom_right", "bottom_left"]
+                );
             }
             "rounded-l" => {
-                insert_computed_style!(
+                insert_node_border_radius_computed!(
                     self,
-                    border_radius,
-                    [
-                        (BorderRadiusBl, "bottom_left", 1),
-                        (BorderRadiusTl, "top_left", 1)
-                    ]
-                )
+                    [BorderRadiusBl, BorderRadiusTl],
+                    1,
+                    ["bottom_left", "top_left"]
+                );
             }
             "rounded-tl" => {
-                insert_computed_style!(self, border_radius, BorderRadiusTl, "top_left", 2)
+                insert_node_border_radius_computed!(self, BorderRadiusTl, 2, ["top_left"]);
             }
             "rounded-tr" => {
-                insert_computed_style!(self, border_radius, BorderRadiusTr, "top_right", 2)
+                insert_node_border_radius_computed!(self, BorderRadiusTr, 2, ["top_right"]);
             }
             "rounded-br" => {
-                insert_computed_style!(self, border_radius, BorderRadiusBr, "bottom_right", 2)
+                insert_node_border_radius_computed!(self, BorderRadiusBr, 2, ["bottom_right"]);
             }
             "rounded-bl" => {
-                insert_computed_style!(self, border_radius, BorderRadiusBl, "bottom_left", 2)
+                insert_node_border_radius_computed!(self, BorderRadiusBl, 2, ["bottom_left"]);
             }
             _ => {}
         }
@@ -79,23 +73,11 @@ impl ParseCtx {
 
         let class = &class["rounded".len()..];
 
-        macro_rules! insert_props {
-            ($ctx:ident, $value:expr, $priority:literal, $props:expr) => {
-                for prop in $props {
-                    $ctx.components
-                        .border_radius
-                        .insert(prop, $value, &$ctx.class_type, $priority);
-                }
-
-                return Ok(true);
-            };
-        }
-
         if let Ok(size) = parse_size(class) {
             // rounded*
             deny_computed_style!(self);
             deny_picking_style!(self);
-            insert_props!(
+            insert_node_border_radius!(
                 self,
                 size,
                 0,
@@ -110,7 +92,7 @@ impl ParseCtx {
             let size = parse_size(class)?;
             deny_computed_style!(self);
             insert_picking_style!(self, BorderRadiusTl, size);
-            insert_props!(self, size, 2, ["top_left"]);
+            insert_node_border_radius!(self, size, 2, ["top_left"]);
         }
 
         if class.starts_with("tr") {
@@ -118,7 +100,7 @@ impl ParseCtx {
             let size = parse_size(class)?;
             deny_computed_style!(self);
             insert_picking_style!(self, BorderRadiusTr, size);
-            insert_props!(self, parse_size(class)?, 2, ["top_right"]);
+            insert_node_border_radius!(self, size, 2, ["top_right"]);
         }
 
         if class.starts_with("br") {
@@ -126,7 +108,7 @@ impl ParseCtx {
             let size = parse_size(class)?;
             deny_computed_style!(self);
             insert_picking_style!(self, BorderRadiusBr, size);
-            insert_props!(self, parse_size(class)?, 2, ["bottom_right"]);
+            insert_node_border_radius!(self, size, 2, ["bottom_right"]);
         }
 
         if class.starts_with("bl") {
@@ -134,35 +116,40 @@ impl ParseCtx {
             let size = parse_size(class)?;
             deny_computed_style!(self);
             insert_picking_style!(self, BorderRadiusBl, size);
-            insert_props!(self, parse_size(class)?, 2, ["bottom_left"]);
+            insert_node_border_radius!(self, size, 2, ["bottom_left"]);
         }
 
         if class.starts_with("t") {
             let class = &class["t".len()..];
             deny_computed_style!(self);
             deny_picking_style!(self);
-            insert_props!(self, parse_size(class)?, 1, ["top_left", "top_right"]);
+            insert_node_border_radius!(self, parse_size(class)?, 1, ["top_left", "top_right"]);
         }
 
         if class.starts_with("r") {
             let class = &class["r".len()..];
             deny_computed_style!(self);
             deny_picking_style!(self);
-            insert_props!(self, parse_size(class)?, 1, ["top_right", "bottom_right"]);
+            insert_node_border_radius!(self, parse_size(class)?, 1, ["top_right", "bottom_right"]);
         }
 
         if class.starts_with("b") {
             let class = &class["b".len()..];
             deny_computed_style!(self);
             deny_picking_style!(self);
-            insert_props!(self, parse_size(class)?, 1, ["bottom_right", "bottom_left"]);
+            insert_node_border_radius!(
+                self,
+                parse_size(class)?,
+                1,
+                ["bottom_right", "bottom_left"]
+            );
         }
 
         if class.starts_with("l") {
             let class = &class["l".len()..];
             deny_computed_style!(self);
             deny_picking_style!(self);
-            insert_props!(self, parse_size(class)?, 1, ["bottom_left", "top_left"]);
+            insert_node_border_radius!(self, parse_size(class)?, 1, ["bottom_left", "top_left"]);
         }
 
         Ok(false)
