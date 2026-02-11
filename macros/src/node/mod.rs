@@ -24,10 +24,12 @@ mod justify_content;
 mod justify_items;
 mod justity_self;
 mod overflow;
+mod overflow_clip_margin;
 mod place_content;
 mod place_items;
 mod place_self;
 mod position_type;
+mod scrollbar_width;
 mod size;
 mod spacing;
 mod trbl;
@@ -89,7 +91,9 @@ impl ParseCtx {
             size::parse_min_height(self, class),
             size::parse_max_height(self, class),
             size::parse_size(self, class),
-            border::parse_border(self, class)
+            border::parse_border(self, class),
+            scrollbar_width::parse_scrollbar_width(self, class),
+            overflow_clip_margin::parse_overflow_clip_margin(self, class)
         );
 
         Ok(false)
@@ -153,6 +157,8 @@ pub enum NodeProp {
     GridAutoColumns,
     GridRow,
     GridColumn,
+    ScrollbarWidth,
+    OverflowClipMargin,
 }
 
 impl AsRef<str> for NodeProp {
@@ -198,6 +204,8 @@ impl AsRef<str> for NodeProp {
             NodeProp::GridAutoColumns => "grid_auto_columns",
             NodeProp::GridRow => "grid_row",
             NodeProp::GridColumn => "grid_column",
+            NodeProp::ScrollbarWidth => "scrollbar_width",
+            NodeProp::OverflowClipMargin => "overflow_clip_margin",
         }
     }
 }

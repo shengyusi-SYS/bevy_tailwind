@@ -701,4 +701,57 @@ fn test_all() {
     tw!("-rotate-45");
     tw!("-rotate-90");
     tw!("rotate": bevy::math::Rot2::radians(1.5708));
+
+    // box shadow
+    tw!("shadow-sm");
+    tw!("shadow");
+    tw!("shadow-md");
+    tw!("shadow-lg");
+    tw!("shadow-xl");
+    tw!("shadow-2xl");
+    tw!("shadow-inner");
+    tw!("shadow-none");
+
+    // font weight
+    tw!("font-thin");
+    tw!("font-extralight");
+    tw!("font-light");
+    tw!("font-normal");
+    tw!("font-medium");
+    tw!("font-semibold");
+    tw!("font-bold");
+    tw!("font-extrabold");
+    tw!("font-black");
+
+    // line height
+    tw!("leading-none");
+    tw!("leading-tight");
+    tw!("leading-snug");
+    tw!("leading-normal");
+    tw!("leading-relaxed");
+    tw!("leading-loose");
+    tw!("leading-4");
+    tw!("leading-[20px]");
+    tw!("leading-[1.5]");
+
+    // text decoration
+    tw!("underline");
+    tw!("line-through");
+    tw!("no-underline");
+
+    // global z-index
+    tw!("global-z-10");
+    tw!("-global-z-10");
+
+    // scrollbar width
+    tw!("scrollbar-thin");
+    tw!("scrollbar-none");
+    tw!("scrollbar-auto");
+
+    // overflow clip margin
+    tw!("overflow-clip-margin-content");
+    tw!("overflow-clip-margin-padding");
+    tw!("overflow-clip-margin-border");
+    tw!("overflow-clip-margin-4");
+    tw!("overflow-clip-margin-[20px]");
 }

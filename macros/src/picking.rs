@@ -225,13 +225,45 @@ fn create_base_style(picking_styles: &PickingStyles, ctx: &mut QuoteCtx) -> Toke
 
     insert_prop!(FontSize, bevy::ui::FontSize, text_font, "font_size");
     #[rustfmt::skip]
+    insert_prop!(FontWeight, bevy::text::FontWeight, text_font, "weight");
+    #[rustfmt::skip]
     insert_prop!(TextJustify, bevy::text::JustifyText, text_layout, "justify");
     #[rustfmt::skip]
     insert_prop!(TextLinebreak, bevy::text::LineBreak, text_layout, "linebreak");
 
+    // LineHeight is an enum component stored as Option<TokenStream>, handle manually
+    if !ctx.is_create
+        || picking_styles
+            .hover
+            .props
+            .contains_key(&PickingStyleProp::LineHeight)
+        || picking_styles
+            .focus
+            .props
+            .contains_key(&PickingStyleProp::LineHeight)
+    {
+        if let Some(ref line_height_val) = ctx.parse_ctx.components.line_height {
+            let prop = if ctx.is_create {
+                let val = line_height_val.clone();
+                quote! {Some(#val)}
+            } else {
+                line_height_val.clone()
+            };
+            base.props
+                .insert(&PickingStyleProp::LineHeight, StructVal::raw(prop));
+        } else if ctx.is_create {
+            let prop = quote! {Some(bevy::text::LineHeight::default())};
+            base.props
+                .insert(&PickingStyleProp::LineHeight, StructVal::raw(prop));
+        }
+    }
+
     insert_prop!(TextColor, bevy::color::Color, text_color, "0");
 
     insert_prop!(BackgroundColor, bevy::color::Color, background_color, "0");
+
+    #[rustfmt::skip]
+    insert_prop!(BoxShadow, bevy::ui::BoxShadow, box_shadow, "0");
 
     insert_prop!(ZIndex, i32, z_index, "0");
 
@@ -356,10 +388,13 @@ pub enum PickingStyleProp {
     MinHeight,
     MaxHeight,
     FontSize,
+    FontWeight,
     TextJustify,
     TextColor,
     TextLinebreak,
+    LineHeight,
     BackgroundColor,
+    BoxShadow,
     BorderRadiusTl,
     BorderRadiusTr,
     BorderRadiusBr,
@@ -429,10 +464,13 @@ impl AsRef<str> for PickingStyleProp {
             PickingStyleProp::MinHeight => "min_height",
             PickingStyleProp::MaxHeight => "max_height",
             PickingStyleProp::FontSize => "font_size",
+            PickingStyleProp::FontWeight => "font_weight",
             PickingStyleProp::TextJustify => "text_justity",
             PickingStyleProp::TextColor => "text_color",
             PickingStyleProp::TextLinebreak => "text_linebreak",
+            PickingStyleProp::LineHeight => "line_height",
             PickingStyleProp::BackgroundColor => "background_color",
+            PickingStyleProp::BoxShadow => "box_shadow",
             PickingStyleProp::BorderRadiusTl => "border_radius_tl",
             PickingStyleProp::BorderRadiusTr => "border_radius_tr",
             PickingStyleProp::BorderRadiusBr => "border_radius_br",

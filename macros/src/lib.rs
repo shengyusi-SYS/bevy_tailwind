@@ -3,6 +3,7 @@ mod border;
 mod node;
 mod outline;
 mod picking;
+mod shadow;
 mod text;
 mod transform;
 mod utils;
@@ -63,6 +64,7 @@ macro_rules! parse_classes {
                 $ctx.parse_border_color(class),
                 $ctx.parse_outline(class),
                 $ctx.parse_background(class),
+                $ctx.parse_shadow(class),
                 $ctx.parse_text(class),
                 $ctx.parse_transform(class),
                 $ctx.parse_node(class)
@@ -176,6 +178,10 @@ pub fn tw(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         #(#conditions)*
     };
 
+    let underline_path = quote! { bevy::text::Underline };
+    let strikethrough_path = quote! { bevy::text::Strikethrough };
+    let line_height_path = quote! { bevy::text::LineHeight };
+
     let components = [
         (
             ctx.components.node.quote(&mut qctx),
@@ -212,6 +218,34 @@ pub fn tw(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         (
             ctx.components.transform.quote(&mut qctx),
             ctx.components.transform.path(),
+        ),
+        (
+            ctx.components.box_shadow.quote(&mut qctx),
+            ctx.components.box_shadow.path(),
+        ),
+        (
+            ctx.components.line_height.clone().unwrap_or_default(),
+            &line_height_path,
+        ),
+        (
+            if ctx.components.underline {
+                quote! { bevy::text::Underline }
+            } else {
+                TokenStream::new()
+            },
+            &underline_path,
+        ),
+        (
+            if ctx.components.strikethrough {
+                quote! { bevy::text::Strikethrough }
+            } else {
+                TokenStream::new()
+            },
+            &strikethrough_path,
+        ),
+        (
+            ctx.components.global_z_index.quote(&mut qctx),
+            ctx.components.global_z_index.path(),
         ),
         (
             ctx.components.picking_styles.quote(&mut qctx),
@@ -346,6 +380,11 @@ struct UiComponents {
     border_color: Struct<&'static str>,
     outline: Struct<&'static str>,
     transform: Struct<&'static str>,
+    box_shadow: Struct<&'static str>,
+    line_height: Option<TokenStream>,
+    global_z_index: Struct<&'static str>,
+    underline: bool,
+    strikethrough: bool,
     picking_styles: PickingStyles,
 }
 
@@ -361,6 +400,11 @@ impl Default for UiComponents {
             border_color: Struct::new(quote! { bevy::ui::BorderColor }),
             outline: Struct::new(quote! { bevy::ui::Outline }),
             transform: Struct::new(quote! { bevy::ui::UiTransform }),
+            box_shadow: Struct::new(quote! { bevy::ui::BoxShadow }),
+            line_height: None,
+            global_z_index: Struct::new(quote! { bevy::ui::GlobalZIndex }),
+            underline: false,
+            strikethrough: false,
             picking_styles: PickingStyles::default(),
         }
     }

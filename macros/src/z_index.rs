@@ -12,6 +12,29 @@ impl ParseCtx {
             insert_computed_style!(self, z_index, ZIndex, "0", 1);
         }
 
+        // Handle global-z-{n}
+        if class.starts_with("global-z-") || class.starts_with("-global-z-") {
+            let (neg, class) = parse_neg(class);
+            let Some(z_val) = class.strip_prefix("global-z-") else {
+                return Ok(false);
+            };
+
+            let z_val = z_val.parse::<u32>().map_err(|_| ParseClassError::Unknown)?;
+            let z_val = if neg { -(z_val as i32) } else { z_val as i32 };
+
+            if neg && z_val == 0 {
+                return Err(ParseClassError::Unknown);
+            }
+
+            deny_computed_style!(self);
+            let z_val = quote! {#z_val};
+            self.components
+                .global_z_index
+                .insert("0", z_val, &self.class_type, 0);
+
+            return Ok(true);
+        }
+
         let (neg, class) = parse_neg(class);
         let Some(z_index) = class.strip_prefix("z-") else {
             return Ok(false);

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::text::LineHeight;
 pub use bevy_tailwind_macro::tw;
 
 pub struct TailwindPlugin;
@@ -23,6 +24,8 @@ fn apply_picking_style(
             Option<&mut TextLayout>,
             Option<&mut TextColor>,
             Option<&mut UiTransform>,
+            Option<&mut BoxShadow>,
+            Option<&mut LineHeight>,
         ),
         Changed<Interaction>,
     >,
@@ -39,6 +42,8 @@ fn apply_picking_style(
         text_layout,
         text_color,
         ui_transform,
+        box_shadow,
+        line_height,
     ) in query.iter_mut()
     {
         if interaction.is_added() {
@@ -56,6 +61,8 @@ fn apply_picking_style(
             text_layout: Option<Mut<TextLayout>>,
             text_color: Option<Mut<TextColor>>,
             ui_transform: Option<Mut<UiTransform>>,
+            box_shadow: Option<Mut<BoxShadow>>,
+            line_height: Option<Mut<LineHeight>>,
         ) {
             macro_rules! apply_style {
                 ($(($picking_prop:ident, $lhs:expr)),+) => {
@@ -149,7 +156,10 @@ fn apply_picking_style(
             }
 
             if let Some(mut text_font) = text_font {
-                apply_style!((font_size, text_font.font_size));
+                apply_style!(
+                    (font_size, text_font.font_size),
+                    (font_weight, text_font.weight)
+                );
             }
 
             if let Some(mut text_layout) = text_layout {
@@ -172,6 +182,14 @@ fn apply_picking_style(
                     (rotation, ui_transform.rotation)
                 );
             }
+
+            if let Some(mut box_shadow) = box_shadow {
+                apply_style!((box_shadow, box_shadow.0));
+            }
+
+            if let Some(mut line_height) = line_height {
+                apply_style!((line_height, *line_height));
+            }
         }
 
         match interaction.into_inner() {
@@ -187,6 +205,8 @@ fn apply_picking_style(
                     text_layout,
                     text_color,
                     ui_transform,
+                    box_shadow,
+                    line_height,
                 );
             }
             Interaction::Hovered => {
@@ -201,6 +221,8 @@ fn apply_picking_style(
                     text_layout,
                     text_color,
                     ui_transform,
+                    box_shadow,
+                    line_height,
                 );
             }
             Interaction::Pressed => {
@@ -215,6 +237,8 @@ fn apply_picking_style(
                     text_layout,
                     text_color,
                     ui_transform,
+                    box_shadow,
+                    line_height,
                 );
             }
         }
@@ -277,10 +301,13 @@ pub struct PickingStyle {
     pub min_height: Option<Val>,
     pub max_height: Option<Val>,
     pub font_size: Option<f32>,
+    pub font_weight: Option<bevy::text::FontWeight>,
     pub text_justity: Option<Justify>,
     pub text_color: Option<Color>,
     pub text_linebreak: Option<LineBreak>,
+    pub line_height: Option<LineHeight>,
     pub background_color: Option<Color>,
+    pub box_shadow: Option<Vec<bevy::ui::ShadowStyle>>,
     pub border_radius_tl: Option<Val>,
     pub border_radius_tr: Option<Val>,
     pub border_radius_br: Option<Val>,
