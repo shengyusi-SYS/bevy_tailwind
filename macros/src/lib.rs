@@ -32,6 +32,13 @@ macro_rules! parse_class {
                                 "hover:"
                             } else if $ctx.focus {
                                 "focus:"
+                            } else if let Some(bp) = &$ctx.responsive {
+                                match bp {
+                                    picking::ResponsiveBreakpoint::Sm => "sm:",
+                                    picking::ResponsiveBreakpoint::Md => "md:",
+                                    picking::ResponsiveBreakpoint::Lg => "lg:",
+                                    picking::ResponsiveBreakpoint::Xl => "xl:",
+                                }
                             } else {
                                 ""
                             };
@@ -52,9 +59,10 @@ macro_rules! parse_classes {
     ($ctx:ident, $classes:ident) => {
         let span = $classes.span();
         for original_class in $classes.value().split_whitespace() {
-            let (hover, focus, class) = picking::parse_picking_class(original_class);
+            let (hover, focus, responsive, class) = picking::parse_picking_class(original_class);
             $ctx.hover = hover;
             $ctx.focus = focus;
+            $ctx.responsive = responsive;
             parse_class!(
                 $ctx,
                 class,
@@ -418,6 +426,7 @@ struct ParseCtx {
     components: UiComponents,
     hover: bool,
     focus: bool,
+    responsive: Option<picking::ResponsiveBreakpoint>,
 }
 
 impl ParseCtx {

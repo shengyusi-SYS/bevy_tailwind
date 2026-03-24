@@ -7,10 +7,22 @@ use crate::{
     utils::quote::{Quote, QuoteCtx, Struct, StructVal, ToTokenStream},
 };
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResponsiveBreakpoint {
+    Sm,
+    Md,
+    Lg,
+    Xl,
+}
+
 pub struct PickingStyles {
     path: TokenStream,
     hover: Struct<PickingStyleProp>,
     focus: Struct<PickingStyleProp>,
+    sm: Struct<PickingStyleProp>,
+    md: Struct<PickingStyleProp>,
+    lg: Struct<PickingStyleProp>,
+    xl: Struct<PickingStyleProp>,
 }
 
 impl PickingStyles {
@@ -25,13 +37,23 @@ impl Default for PickingStyles {
             path: quote! {bevy_tailwind::PickingStyles},
             hover: Struct::new(quote! { bevy_tailwind::PickingStyle}),
             focus: Struct::new(quote! { bevy_tailwind::PickingStyle}),
+            sm: Struct::new(quote! { bevy_tailwind::PickingStyle}),
+            md: Struct::new(quote! { bevy_tailwind::PickingStyle}),
+            lg: Struct::new(quote! { bevy_tailwind::PickingStyle}),
+            xl: Struct::new(quote! { bevy_tailwind::PickingStyle}),
         }
     }
 }
 
 impl Quote for PickingStyles {
     fn quote(&self, ctx: &mut QuoteCtx) -> TokenStream {
-        if self.focus.props.is_empty() && self.hover.props.is_empty() {
+        let has_picking = !self.focus.props.is_empty() || !self.hover.props.is_empty();
+        let has_responsive = !self.sm.props.is_empty()
+            || !self.md.props.is_empty()
+            || !self.lg.props.is_empty()
+            || !self.xl.props.is_empty();
+
+        if !has_picking && !has_responsive {
             return TokenStream::new();
         }
 
@@ -52,12 +74,52 @@ impl Quote for PickingStyles {
         } else {
             quote! {focus: #focus,}
         };
+
+        macro_rules! gen_responsive {
+            ($field:ident) => {{
+                ctx.parent_props.push(stringify!($field).to_string());
+                let tokens = self.$field.quote(ctx);
+                ctx.parent_props.pop();
+                tokens
+            }};
+        }
+
+        let sm_tokens = gen_responsive!(sm);
+        let md_tokens = gen_responsive!(md);
+        let lg_tokens = gen_responsive!(lg);
+        let xl_tokens = gen_responsive!(xl);
+
+        let sm = if sm_tokens.is_empty() || !ctx.is_create {
+            sm_tokens
+        } else {
+            quote! {sm: #sm_tokens,}
+        };
+        let md = if md_tokens.is_empty() || !ctx.is_create {
+            md_tokens
+        } else {
+            quote! {md: #md_tokens,}
+        };
+        let lg = if lg_tokens.is_empty() || !ctx.is_create {
+            lg_tokens
+        } else {
+            quote! {lg: #lg_tokens,}
+        };
+        let xl = if xl_tokens.is_empty() || !ctx.is_create {
+            xl_tokens
+        } else {
+            quote! {xl: #xl_tokens,}
+        };
+
         if ctx.is_create {
             return quote! {
                 bevy_tailwind::PickingStyles {
                     base: #base,
                     #hover
                     #focus
+                    #sm
+                    #md
+                    #lg
+                    #xl
                     ..Default::default()
                 }
             };
@@ -67,6 +129,10 @@ impl Quote for PickingStyles {
             #base
             #hover
             #focus
+            #sm
+            #md
+            #lg
+            #xl
         }
     }
 }
@@ -92,6 +158,21 @@ impl ParseCtx {
             );
         }
     }
+
+    pub fn insert_responsive_style(&mut self, prop: PickingStyleProp, val: impl ToTokenStream) {
+        let bp = self.responsive.unwrap();
+        let val = val.to_token_stream();
+        let val = quote! {Some(#val)};
+        let target = match bp {
+            ResponsiveBreakpoint::Sm => &mut self.components.picking_styles.sm,
+            ResponsiveBreakpoint::Md => &mut self.components.picking_styles.md,
+            ResponsiveBreakpoint::Lg => &mut self.components.picking_styles.lg,
+            ResponsiveBreakpoint::Xl => &mut self.components.picking_styles.xl,
+        };
+        target
+            .props
+            .insert(prop, StructVal::prioritized(val, &self.class_type, 0, false));
+    }
 }
 
 fn create_base_style(picking_styles: &PickingStyles, ctx: &mut QuoteCtx) -> TokenStream {
@@ -110,6 +191,22 @@ fn create_base_style(picking_styles: &PickingStyles, ctx: &mut QuoteCtx) -> Toke
                     .contains_key(&PickingStyleProp::$picking_prop)
                 || picking_styles
                     .focus
+                    .props
+                    .contains_key(&PickingStyleProp::$picking_prop)
+                || picking_styles
+                    .sm
+                    .props
+                    .contains_key(&PickingStyleProp::$picking_prop)
+                || picking_styles
+                    .md
+                    .props
+                    .contains_key(&PickingStyleProp::$picking_prop)
+                || picking_styles
+                    .lg
+                    .props
+                    .contains_key(&PickingStyleProp::$picking_prop)
+                || picking_styles
+                    .xl
                     .props
                     .contains_key(&PickingStyleProp::$picking_prop)
             {
@@ -241,6 +338,22 @@ fn create_base_style(picking_styles: &PickingStyles, ctx: &mut QuoteCtx) -> Toke
             .focus
             .props
             .contains_key(&PickingStyleProp::LineHeight)
+        || picking_styles
+            .sm
+            .props
+            .contains_key(&PickingStyleProp::LineHeight)
+        || picking_styles
+            .md
+            .props
+            .contains_key(&PickingStyleProp::LineHeight)
+        || picking_styles
+            .lg
+            .props
+            .contains_key(&PickingStyleProp::LineHeight)
+        || picking_styles
+            .xl
+            .props
+            .contains_key(&PickingStyleProp::LineHeight)
     {
         if let Some(ref line_height_val) = ctx.parse_ctx.components.line_height {
             let prop = if ctx.is_create {
@@ -310,6 +423,10 @@ fn create_base_style(picking_styles: &PickingStyles, ctx: &mut QuoteCtx) -> Toke
 
 macro_rules! insert_picking_style {
     ($ctx:ident, $prop:ident, $value:expr) => {
+        if $ctx.responsive.is_some() {
+            $ctx.insert_responsive_style(crate::picking::PickingStyleProp::$prop, $value);
+            return Ok(true);
+        }
         if $ctx.hover || $ctx.focus {
             $ctx.insert_picking_style(crate::picking::PickingStyleProp::$prop, $value);
             return Ok(true);
@@ -321,7 +438,7 @@ pub(crate) use insert_picking_style;
 
 macro_rules! deny_picking_style {
     ($ctx:ident) => {
-        if $ctx.hover || $ctx.focus {
+        if $ctx.hover || $ctx.focus || $ctx.responsive.is_some() {
             return Err(crate::ParseClassError::Unknown);
         }
     };
@@ -329,16 +446,29 @@ macro_rules! deny_picking_style {
 
 pub(crate) use deny_picking_style;
 
-pub fn parse_picking_class(class: &str) -> (bool, bool, &str) {
+pub fn parse_picking_class(class: &str) -> (bool, bool, Option<ResponsiveBreakpoint>, &str) {
+    if class.starts_with("sm:") {
+        return (false, false, Some(ResponsiveBreakpoint::Sm), &class[3..]);
+    }
+    if class.starts_with("md:") {
+        return (false, false, Some(ResponsiveBreakpoint::Md), &class[3..]);
+    }
+    if class.starts_with("lg:") {
+        return (false, false, Some(ResponsiveBreakpoint::Lg), &class[3..]);
+    }
+    if class.starts_with("xl:") {
+        return (false, false, Some(ResponsiveBreakpoint::Xl), &class[3..]);
+    }
+
     if class.starts_with("hover:") {
-        return (true, false, &class[6..]);
+        return (true, false, None, &class[6..]);
     }
 
     if class.starts_with("focus:") {
-        return (false, true, &class[6..]);
+        return (false, true, None, &class[6..]);
     }
 
-    (false, false, class)
+    (false, false, None, class)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
