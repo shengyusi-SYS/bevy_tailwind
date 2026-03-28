@@ -346,9 +346,6 @@ fn apply_interaction_style(
         line_height,
     ) in query.iter_mut()
     {
-        if interaction.is_added() {
-            continue;
-        }
 
         apply_cascade(
             picking_styles,
