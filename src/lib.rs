@@ -24,6 +24,7 @@ pub struct TailwindPlugin;
 impl Plugin for TailwindPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CurrentBreakpoint>()
+            .add_systems(PreStartup, init_breakpoint)
             .add_systems(
                 PostUpdate,
                 (
@@ -34,6 +35,32 @@ impl Plugin for TailwindPlugin {
                         .run_if(resource_changed::<CurrentBreakpoint>),
                 ),
             );
+    }
+}
+
+/// Initialize breakpoint from actual window width at startup,
+/// so the first frame renders with the correct responsive styles.
+fn init_breakpoint(
+    window: Query<&Window, With<PrimaryWindow>>,
+    mut breakpoint: ResMut<CurrentBreakpoint>,
+) {
+    let Ok(window) = window.single() else {
+        return;
+    };
+    let width = window.width();
+    let new = if width >= 1280.0 {
+        CurrentBreakpoint::Xl
+    } else if width >= 1024.0 {
+        CurrentBreakpoint::Lg
+    } else if width >= 768.0 {
+        CurrentBreakpoint::Md
+    } else if width >= 640.0 {
+        CurrentBreakpoint::Sm
+    } else {
+        CurrentBreakpoint::Base
+    };
+    if *breakpoint != new {
+        *breakpoint = new;
     }
 }
 

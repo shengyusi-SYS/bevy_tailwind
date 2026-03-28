@@ -52,6 +52,7 @@ pub fn parse_min_width(ctx: &mut ParseCtx, class: &str) -> ParseResult {
     let val = Val::parse(
         class,
         ParseValSettings::default_disallow()
+            .allow_auto(true)
             .allow_px(true)
             .allow_fraction(true)
             .allow_full(true)
@@ -80,6 +81,7 @@ pub fn parse_max_width(ctx: &mut ParseCtx, class: &str) -> ParseResult {
     let val = Val::parse(
         class,
         ParseValSettings::default_disallow()
+            .allow_auto(true)
             .allow_px(true)
             .allow_fraction(true)
             .allow_full(true),

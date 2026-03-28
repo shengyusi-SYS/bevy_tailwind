@@ -187,6 +187,22 @@ fn parse_arbitrary(str: &str, settings: ParseValSettings) -> Option<Val> {
         return Some(Val::Px(val));
     }
 
+    if let Some(val) = parse_unit(str, "vw") {
+        return Some(Val::Vw(val));
+    }
+
+    if let Some(val) = parse_unit(str, "vh") {
+        return Some(Val::Vh(val));
+    }
+
+    if let Some(val) = parse_unit(str, "vmin") {
+        return Some(Val::VMin(val));
+    }
+
+    if let Some(val) = parse_unit(str, "vmax") {
+        return Some(Val::VMax(val));
+    }
+
     if settings.allow_fraction {
         if let Some(val) = parse_percent(str) {
             return Some(Val::Percent(val));
@@ -194,6 +210,10 @@ fn parse_arbitrary(str: &str, settings: ParseValSettings) -> Option<Val> {
     }
 
     None
+}
+
+fn parse_unit(str: &str, suffix: &str) -> Option<f32> {
+    str.strip_suffix(suffix)?.parse::<f32>().ok()
 }
 
 #[derive(Clone, Copy)]

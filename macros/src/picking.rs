@@ -390,13 +390,13 @@ fn create_base_style(picking_styles: &PickingStyles, ctx: &mut QuoteCtx) -> Toke
     insert_prop!(BorderRadiusBl, bevy::ui::Val, node, &NodeProp::BorderRadius, "bottom_left");
 
     #[rustfmt::skip]
-    insert_prop!(BorderTop, bevy::ui::Border, node, &NodeProp::Border, "top");
+    insert_prop!(BorderTop, bevy::ui::Val, node, &NodeProp::Border, "top");
     #[rustfmt::skip]
-    insert_prop!(BorderRight, bevy::ui::Border, node, &NodeProp::Border, "right");
+    insert_prop!(BorderRight, bevy::ui::Val, node, &NodeProp::Border, "right");
     #[rustfmt::skip]
-    insert_prop!(BorderBottom, bevy::ui::Border, node, &NodeProp::Border, "bottom");
+    insert_prop!(BorderBottom, bevy::ui::Val, node, &NodeProp::Border, "bottom");
     #[rustfmt::skip]
-    insert_prop!(BorderLeft, bevy::ui::Border, node, &NodeProp::Border, "left");
+    insert_prop!(BorderLeft, bevy::ui::Val, node, &NodeProp::Border, "left");
 
     insert_prop!(BorderColorTop, bevy::color::Color, border_color, "top");
     insert_prop!(BorderColorRight, bevy::color::Color, border_color, "right");
