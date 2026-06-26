@@ -320,7 +320,7 @@ fn create_base_style(picking_styles: &PickingStyles, ctx: &mut QuoteCtx) -> Toke
     insert_prop!(MinHeight, bevy::ui::Val, node, &NodeProp::MinHeight);
     insert_prop!(MaxHeight, bevy::ui::Val, node, &NodeProp::MaxHeight);
 
-    insert_prop!(FontSize, bevy::ui::FontSize, text_font, "font_size");
+    insert_prop!(FontSize, bevy::text::FontSize, text_font, "font_size");
     #[rustfmt::skip]
     insert_prop!(FontWeight, bevy::text::FontWeight, text_font, "weight");
     #[rustfmt::skip]

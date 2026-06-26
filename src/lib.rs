@@ -481,7 +481,7 @@ pub struct PickingStyle {
     pub height: Option<Val>,
     pub min_height: Option<Val>,
     pub max_height: Option<Val>,
-    pub font_size: Option<f32>,
+    pub font_size: Option<bevy::text::FontSize>,
     pub font_weight: Option<bevy::text::FontWeight>,
     pub text_justity: Option<Justify>,
     pub text_color: Option<Color>,
