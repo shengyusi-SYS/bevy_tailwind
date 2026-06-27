@@ -5,7 +5,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
-bevy = { path = "../../../../bevy", default-features = false, features = [
+bevy = { git = "https://github.com/shengyusi-SYS/bevy.git", branch = "sys/bevy-0.19-lianyin", version = "0.19.0", default-features = false, features = [
     "bevy_ui",
     "bevy_text",
 ] }
